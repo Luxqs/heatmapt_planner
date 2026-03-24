@@ -23,6 +23,14 @@ const STRAVA_ICON = (
   </svg>
 );
 
+const GLOBAL_SPORTS = [
+  { id: 'all',    label: 'All Sports' },
+  { id: 'run',    label: 'Run' },
+  { id: 'ride',   label: 'Ride' },
+  { id: 'water',  label: 'Water' },
+  { id: 'winter', label: 'Winter' },
+];
+
 export default function Sidebar({
   source, setSource,
   mapType, setMapType,
@@ -37,6 +45,8 @@ export default function Sidebar({
   pointCount,
   onGarminUpload,
   garminCount,
+  showGlobalHeatmap, setShowGlobalHeatmap,
+  globalSport, setGlobalSport,
 }) {
   const fileInputRef = useRef(null);
 
@@ -215,6 +225,48 @@ export default function Sidebar({
             </button>
           ))}
         </div>
+      </div>
+
+      {/* Global heatmap */}
+      <div className="px-5 py-4 border-b border-gray-800 space-y-3">
+        <div className="flex items-center justify-between">
+          <label className="section-label">Global Heatmap</label>
+          <button
+            onClick={() => setShowGlobalHeatmap(v => !v)}
+            className={`relative inline-flex h-5 w-9 items-center rounded-full transition-colors ${
+              showGlobalHeatmap ? 'bg-orange-500' : 'bg-gray-700'
+            }`}
+          >
+            <span
+              className={`inline-block h-3.5 w-3.5 transform rounded-full bg-white transition-transform ${
+                showGlobalHeatmap ? 'translate-x-4' : 'translate-x-1'
+              }`}
+            />
+          </button>
+        </div>
+
+        {showGlobalHeatmap && (
+          <>
+            <div className="flex flex-wrap gap-1.5">
+              {GLOBAL_SPORTS.map(({ id, label }) => (
+                <button
+                  key={id}
+                  onClick={() => setGlobalSport(id)}
+                  className={`py-1 px-2.5 rounded-full text-xs font-medium transition-colors ${
+                    globalSport === id
+                      ? 'bg-orange-500 text-white'
+                      : 'bg-gray-800 text-gray-400 hover:bg-gray-700'
+                  }`}
+                >
+                  {label}
+                </button>
+              ))}
+            </div>
+            <p className="text-xs text-gray-600 leading-snug">
+              Shows worldwide Strava activity data. Requires being logged into Strava in this browser.
+            </p>
+          </>
+        )}
       </div>
 
       {/* Map style */}

@@ -31,7 +31,15 @@ export const TILE_LAYERS = {
   },
 };
 
-export default function MapView({ mapType, points }) {
+const GLOBAL_SPORTS = {
+  all:    'all',
+  run:    'run',
+  ride:   'ride',
+  water:  'water',
+  winter: 'winter',
+};
+
+export default function MapView({ mapType, points, showGlobalHeatmap, globalSport }) {
   const tile = TILE_LAYERS[mapType] || TILE_LAYERS.standard;
 
   // leaflet.heat expects [lat, lng, intensity]
@@ -39,6 +47,9 @@ export default function MapView({ mapType, points }) {
     () => points.map(([lat, lng]) => [lat, lng, 0.6]),
     [points]
   );
+
+  const sport = GLOBAL_SPORTS[globalSport] || 'all';
+  const globalTileUrl = `https://heatmap-external-{s}.strava.com/tiles-auth/${sport}/hot/{z}/{x}/{y}.png`;
 
   return (
     <div className="flex-1 h-full relative">
@@ -54,15 +65,32 @@ export default function MapView({ mapType, points }) {
           attribution={tile.attribution}
           maxZoom={tile.maxZoom}
         />
+        {showGlobalHeatmap && (
+          <TileLayer
+            key={`global-${sport}`}
+            url={globalTileUrl}
+            subdomains={['a', 'b', 'c']}
+            attribution='Global heatmap &copy; <a href="https://www.strava.com">Strava</a>'
+            maxZoom={16}
+            opacity={0.8}
+          />
+        )}
         {heatPoints.length > 0 && <HeatmapLayer points={heatPoints} />}
       </MapContainer>
 
-      {/* Point count badge */}
-      {heatPoints.length > 0 && (
-        <div className="absolute bottom-8 right-4 z-[1000] bg-black/70 text-white text-xs px-3 py-1.5 rounded-full pointer-events-none">
-          {heatPoints.length.toLocaleString()} GPS points
-        </div>
-      )}
+      {/* Badges */}
+      <div className="absolute bottom-8 right-4 z-[1000] flex flex-col items-end gap-1.5 pointer-events-none">
+        {showGlobalHeatmap && (
+          <div className="bg-orange-600/80 text-white text-xs px-3 py-1.5 rounded-full">
+            Global: {globalSport}
+          </div>
+        )}
+        {heatPoints.length > 0 && (
+          <div className="bg-black/70 text-white text-xs px-3 py-1.5 rounded-full">
+            {heatPoints.length.toLocaleString()} GPS points
+          </div>
+        )}
+      </div>
     </div>
   );
 }
