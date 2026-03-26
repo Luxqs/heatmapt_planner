@@ -20,16 +20,15 @@ export default function HeatmapLayer({ points, options = {} }) {
     if (!points || points.length === 0) return;
 
     layerRef.current = L.heatLayer(points, {
-      radius: 15,
-      blur: 20,
+      radius: 12,
+      blur: 18,
       maxZoom: 17,
       max: 1.0,
       gradient: {
-        0.1: '#0d47a1',
-        0.3: '#1565c0',
-        0.5: '#fbc02d',
-        0.7: '#e65100',
-        1.0: '#b71c1c',
+        0.2: '#fc4c02',
+        0.5: '#ff8c00',
+        0.8: '#ffd700',
+        1.0: '#ffffff',
       },
       ...options,
     }).addTo(map);

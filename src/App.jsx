@@ -16,9 +16,9 @@ const CACHE_TTL = 60 * 60 * 1000; // 1 hour
 
 export default function App() {
   const [source, setSource] = useState('strava');
-  const [mapType, setMapType] = useState('standard');
+  const [mapType, setMapType] = useState('dark');
   const [activityType, setActivityType] = useState('All');
-  const [showGlobalHeatmap, setShowGlobalHeatmap] = useState(false);
+  const [heatmapView, setHeatmapView] = useState('personal');
   const [globalSport, setGlobalSport] = useState('all');
 
   const [stravaAuth, setStravaAuth] = useState(null);
@@ -144,15 +144,15 @@ export default function App() {
         pointCount={filteredPoints.length}
         onGarminUpload={activities => setGarminActivities(prev => [...prev, ...activities])}
         garminCount={garminActivities.length}
-        showGlobalHeatmap={showGlobalHeatmap}
-        setShowGlobalHeatmap={setShowGlobalHeatmap}
+        heatmapView={heatmapView}
+        setHeatmapView={setHeatmapView}
         globalSport={globalSport}
         setGlobalSport={setGlobalSport}
       />
       <MapView
         mapType={mapType}
         points={filteredPoints}
-        showGlobalHeatmap={showGlobalHeatmap}
+        heatmapView={heatmapView}
         globalSport={globalSport}
       />
     </div>
