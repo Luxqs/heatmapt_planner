@@ -3,6 +3,13 @@ import { MapContainer, TileLayer } from 'react-leaflet';
 import HeatmapLayer from './HeatmapLayer';
 
 export const TILE_LAYERS = {
+  dark: {
+    label: 'Dark',
+    url: 'https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png',
+    attribution:
+      '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors &copy; <a href="https://carto.com/attributions">CARTO</a>',
+    maxZoom: 19,
+  },
   standard: {
     label: 'Standard',
     url: 'https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png',
@@ -39,8 +46,11 @@ const GLOBAL_SPORTS = {
   winter: 'winter',
 };
 
-export default function MapView({ mapType, points, showGlobalHeatmap, globalSport }) {
-  const tile = TILE_LAYERS[mapType] || TILE_LAYERS.standard;
+export default function MapView({ mapType, points, heatmapView, globalSport }) {
+  const tile = TILE_LAYERS[mapType] || TILE_LAYERS.dark;
+
+  const showPersonal = heatmapView !== 'global';
+  const showGlobal = heatmapView !== 'personal';
 
   // leaflet.heat expects [lat, lng, intensity]
   const heatPoints = useMemo(
@@ -65,7 +75,7 @@ export default function MapView({ mapType, points, showGlobalHeatmap, globalSpor
           attribution={tile.attribution}
           maxZoom={tile.maxZoom}
         />
-        {showGlobalHeatmap && (
+        {showGlobal && (
           <TileLayer
             key={`global-${sport}`}
             url={globalTileUrl}
@@ -75,17 +85,17 @@ export default function MapView({ mapType, points, showGlobalHeatmap, globalSpor
             opacity={0.8}
           />
         )}
-        {heatPoints.length > 0 && <HeatmapLayer points={heatPoints} />}
+        {showPersonal && heatPoints.length > 0 && <HeatmapLayer points={heatPoints} />}
       </MapContainer>
 
       {/* Badges */}
       <div className="absolute bottom-8 right-4 z-[1000] flex flex-col items-end gap-1.5 pointer-events-none">
-        {showGlobalHeatmap && (
+        {showGlobal && (
           <div className="bg-orange-600/80 text-white text-xs px-3 py-1.5 rounded-full">
             Global: {globalSport}
           </div>
         )}
-        {heatPoints.length > 0 && (
+        {showPersonal && heatPoints.length > 0 && (
           <div className="bg-black/70 text-white text-xs px-3 py-1.5 rounded-full">
             {heatPoints.length.toLocaleString()} GPS points
           </div>
