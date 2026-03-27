@@ -1,4 +1,4 @@
-import { useRef } from 'react';
+import { useRef, useState } from 'react';
 import { getAuthUrl } from '../utils/stravaApi';
 import { readGpxFiles } from '../utils/gpxParser';
 import { TILE_LAYERS } from './MapView';
@@ -53,8 +53,18 @@ export default function Sidebar({
   garminCount,
   heatmapView, setHeatmapView,
   globalSport, setGlobalSport,
+  heatmapCreds, onSaveHeatmapCreds, onClearHeatmapCreds,
 }) {
   const fileInputRef = useRef(null);
+  const [credsForm, setCredsForm] = useState({ keyPairId: '', policy: '', signature: '' });
+  const [showCredsForm, setShowCredsForm] = useState(false);
+
+  const handleSaveCreds = () => {
+    const { keyPairId, policy, signature } = credsForm;
+    if (!keyPairId.trim() || !policy.trim() || !signature.trim()) return;
+    onSaveHeatmapCreds({ keyPairId: keyPairId.trim(), policy: policy.trim(), signature: signature.trim() });
+    setShowCredsForm(false);
+  };
 
   const handleDrop = async (e) => {
     e.preventDefault();
@@ -121,22 +131,86 @@ export default function Sidebar({
                 </button>
               ))}
             </div>
-            <div className="bg-gray-900 rounded-lg p-3 space-y-2">
-              <p className="text-xs text-gray-400 leading-snug">
-                Requires Strava cookies — click below while logged into Strava, then return here.
-              </p>
-              <a
-                href="https://www.strava.com/maps/global-heatmap"
-                target="_blank"
-                rel="noopener noreferrer"
-                className="flex items-center justify-center gap-1.5 w-full py-1.5 px-3
-                           bg-orange-500/20 hover:bg-orange-500/30 border border-orange-500/40
-                           text-orange-400 rounded-lg text-xs font-medium transition-colors"
-              >
-                {STRAVA_ICON}
-                Open Strava Global Heatmap
-              </a>
-            </div>
+            {heatmapCreds && !showCredsForm ? (
+              <div className="flex items-center justify-between bg-gray-900 rounded-lg px-3 py-2">
+                <div className="flex items-center gap-2">
+                  <span className="w-2 h-2 rounded-full bg-green-400 shrink-0" />
+                  <span className="text-xs text-green-400 font-medium">Authenticated</span>
+                </div>
+                <div className="flex gap-2">
+                  <button
+                    onClick={() => { setCredsForm({ keyPairId: '', policy: '', signature: '' }); setShowCredsForm(true); }}
+                    className="text-xs text-gray-500 hover:text-gray-300 transition-colors"
+                  >
+                    Update
+                  </button>
+                  <button
+                    onClick={onClearHeatmapCreds}
+                    className="text-xs text-red-500 hover:text-red-400 transition-colors"
+                  >
+                    Clear
+                  </button>
+                </div>
+              </div>
+            ) : (
+              <div className="space-y-2">
+                <div className="bg-gray-900 rounded-lg p-3 text-xs text-gray-400 space-y-1.5">
+                  <p className="font-medium text-gray-300">How to get your credentials:</p>
+                  <p>1. Log into <a href="https://www.strava.com" target="_blank" rel="noopener noreferrer" className="text-orange-400 underline">strava.com</a></p>
+                  <p>2. Open <a href="https://www.strava.com/maps/global-heatmap" target="_blank" rel="noopener noreferrer" className="text-orange-400 underline">Global Heatmap</a> and wait for it to load</p>
+                  <p>3. Press <kbd className="bg-gray-700 px-1 rounded">F12</kbd> → Application → Cookies → <code className="bg-gray-700 px-1 rounded text-orange-300">heatmap-external-a.strava.com</code></p>
+                  <p>4. Copy the 3 CloudFront values below</p>
+                </div>
+
+                <input
+                  type="text"
+                  placeholder="CloudFront-Key-Pair-Id"
+                  value={credsForm.keyPairId}
+                  onChange={e => setCredsForm(f => ({ ...f, keyPairId: e.target.value }))}
+                  className="w-full bg-gray-900 border border-gray-700 rounded-lg px-3 py-2
+                             text-xs text-white placeholder-gray-600 focus:outline-none
+                             focus:border-orange-500 font-mono"
+                />
+                <textarea
+                  placeholder="CloudFront-Policy"
+                  value={credsForm.policy}
+                  onChange={e => setCredsForm(f => ({ ...f, policy: e.target.value }))}
+                  rows={3}
+                  className="w-full bg-gray-900 border border-gray-700 rounded-lg px-3 py-2
+                             text-xs text-white placeholder-gray-600 focus:outline-none
+                             focus:border-orange-500 font-mono resize-none"
+                />
+                <textarea
+                  placeholder="CloudFront-Signature"
+                  value={credsForm.signature}
+                  onChange={e => setCredsForm(f => ({ ...f, signature: e.target.value }))}
+                  rows={3}
+                  className="w-full bg-gray-900 border border-gray-700 rounded-lg px-3 py-2
+                             text-xs text-white placeholder-gray-600 focus:outline-none
+                             focus:border-orange-500 font-mono resize-none"
+                />
+                <div className="flex gap-2">
+                  <button
+                    onClick={handleSaveCreds}
+                    disabled={!credsForm.keyPairId || !credsForm.policy || !credsForm.signature}
+                    className="flex-1 py-2 bg-orange-500 hover:bg-orange-600
+                               disabled:opacity-40 disabled:cursor-not-allowed
+                               text-white rounded-lg text-xs font-semibold transition-colors"
+                  >
+                    Save &amp; Activate
+                  </button>
+                  {showCredsForm && (
+                    <button
+                      onClick={() => setShowCredsForm(false)}
+                      className="py-2 px-3 bg-gray-800 hover:bg-gray-700
+                                 text-gray-400 rounded-lg text-xs transition-colors"
+                    >
+                      Cancel
+                    </button>
+                  )}
+                </div>
+              </div>
+            )}
           </div>
         )}
       </div>

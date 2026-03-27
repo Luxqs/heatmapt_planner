@@ -29,6 +29,24 @@ export default function App() {
   const [loadingProgress, setLoadingProgress] = useState(0);
   const [error, setError] = useState(null);
 
+  // ── Strava CloudFront heatmap credentials ──────────────────────────────────
+  const [heatmapCreds, setHeatmapCreds] = useState(() => {
+    try {
+      const saved = localStorage.getItem('strava_heatmap_creds');
+      return saved ? JSON.parse(saved) : null;
+    } catch { return null; }
+  });
+
+  const saveHeatmapCreds = useCallback((creds) => {
+    localStorage.setItem('strava_heatmap_creds', JSON.stringify(creds));
+    setHeatmapCreds(creds);
+  }, []);
+
+  const clearHeatmapCreds = useCallback(() => {
+    localStorage.removeItem('strava_heatmap_creds');
+    setHeatmapCreds(null);
+  }, []);
+
   // ── Strava OAuth callback ──────────────────────────────────────────────────
   useEffect(() => {
     const params = new URLSearchParams(window.location.search);
@@ -148,12 +166,16 @@ export default function App() {
         setHeatmapView={setHeatmapView}
         globalSport={globalSport}
         setGlobalSport={setGlobalSport}
+        heatmapCreds={heatmapCreds}
+        onSaveHeatmapCreds={saveHeatmapCreds}
+        onClearHeatmapCreds={clearHeatmapCreds}
       />
       <MapView
         mapType={mapType}
         points={filteredPoints}
         heatmapView={heatmapView}
         globalSport={globalSport}
+        heatmapCreds={heatmapCreds}
       />
     </div>
   );

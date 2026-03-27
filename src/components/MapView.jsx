@@ -46,7 +46,7 @@ const GLOBAL_SPORTS = {
   winter: 'winter',
 };
 
-export default function MapView({ mapType, points, heatmapView, globalSport }) {
+export default function MapView({ mapType, points, heatmapView, globalSport, heatmapCreds }) {
   const tile = TILE_LAYERS[mapType] || TILE_LAYERS.dark;
 
   const showPersonal = heatmapView !== 'global';
@@ -59,7 +59,10 @@ export default function MapView({ mapType, points, heatmapView, globalSport }) {
   );
 
   const sport = GLOBAL_SPORTS[globalSport] || 'all';
-  const globalTileUrl = `https://heatmap-external-{s}.strava.com/tiles-auth/${sport}/hot/{z}/{x}/{y}.png`;
+  const credsSuffix = heatmapCreds
+    ? `?Key-Pair-Id=${encodeURIComponent(heatmapCreds.keyPairId)}&Policy=${encodeURIComponent(heatmapCreds.policy)}&Signature=${encodeURIComponent(heatmapCreds.signature)}`
+    : '';
+  const globalTileUrl = `https://heatmap-external-{s}.strava.com/tiles-auth/${sport}/hot/{z}/{x}/{y}.png${credsSuffix}`;
 
   return (
     <div className="flex-1 h-full relative">
@@ -77,7 +80,7 @@ export default function MapView({ mapType, points, heatmapView, globalSport }) {
         />
         {showGlobal && (
           <TileLayer
-            key={`global-${sport}`}
+            key={`global-${sport}-${heatmapCreds ? 'auth' : 'noauth'}`}
             url={globalTileUrl}
             subdomains={['a', 'b', 'c']}
             attribution='Global heatmap &copy; <a href="https://www.strava.com">Strava</a>'
