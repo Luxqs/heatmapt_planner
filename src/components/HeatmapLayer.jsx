@@ -39,7 +39,8 @@ export default function HeatmapLayer({ points, options = {} }) {
         layerRef.current = null;
       }
     };
-  }, [map, points, options]);
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [map, points]);
 
   return null;
 }

@@ -59,7 +59,7 @@ export default function MapView({ mapType, points, heatmapView, globalSport }) {
   );
 
   const sport = GLOBAL_SPORTS[globalSport] || 'all';
-  const globalTileUrl = `https://heatmap-external-{s}.strava.com/tiles/${sport}/hot/{z}/{x}/{y}.png`;
+  const globalTileUrl = `https://heatmap-external-{s}.strava.com/tiles-auth/${sport}/hot/{z}/{x}/{y}.png`;
 
   return (
     <div className="flex-1 h-full relative">

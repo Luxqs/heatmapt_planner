@@ -121,9 +121,22 @@ export default function Sidebar({
                 </button>
               ))}
             </div>
-            <p className="text-xs text-gray-600 leading-snug">
-              Worldwide Strava data. Requires being logged into Strava in this browser.
-            </p>
+            <div className="bg-gray-900 rounded-lg p-3 space-y-2">
+              <p className="text-xs text-gray-400 leading-snug">
+                Requires Strava cookies — click below while logged into Strava, then return here.
+              </p>
+              <a
+                href="https://www.strava.com/maps/global-heatmap"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="flex items-center justify-center gap-1.5 w-full py-1.5 px-3
+                           bg-orange-500/20 hover:bg-orange-500/30 border border-orange-500/40
+                           text-orange-400 rounded-lg text-xs font-medium transition-colors"
+              >
+                {STRAVA_ICON}
+                Open Strava Global Heatmap
+              </a>
+            </div>
           </div>
         )}
       </div>
