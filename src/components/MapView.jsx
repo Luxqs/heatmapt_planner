@@ -1,4 +1,4 @@
-import { useMemo } from 'react';
+import { useMemo, useState } from 'react';
 import { MapContainer, TileLayer } from 'react-leaflet';
 import HeatmapLayer from './HeatmapLayer';
 
@@ -48,6 +48,7 @@ const GLOBAL_SPORTS = {
 
 export default function MapView({ mapType, points, heatmapView, globalSport }) {
   const tile = TILE_LAYERS[mapType] || TILE_LAYERS.dark;
+  const [globalHeatmapError, setGlobalHeatmapError] = useState(false);
 
   const showPersonal = heatmapView !== 'global';
   const showGlobal = heatmapView !== 'personal';
@@ -59,7 +60,7 @@ export default function MapView({ mapType, points, heatmapView, globalSport }) {
   );
 
   const sport = GLOBAL_SPORTS[globalSport] || 'all';
-  const globalTileUrl = `https://heatmap-external-{s}.strava.com/tiles-auth/${sport}/hot/{z}/{x}/{y}.png`;
+  const globalTileUrl = `https://heatmap-external-{s}.strava.com/tiles-auth/${sport}/hot/{z}/{x}/{y}.png?px=256`;
 
   return (
     <div className="flex-1 h-full relative">
@@ -83,6 +84,11 @@ export default function MapView({ mapType, points, heatmapView, globalSport }) {
             attribution='Global heatmap &copy; <a href="https://www.strava.com">Strava</a>'
             maxZoom={16}
             opacity={0.8}
+            crossOrigin="use-credentials"
+            eventHandlers={{
+              loading: () => setGlobalHeatmapError(false),
+              tileerror: () => setGlobalHeatmapError(true),
+            }}
           />
         )}
         {showPersonal && heatPoints.length > 0 && <HeatmapLayer points={heatPoints} />}
@@ -93,6 +99,12 @@ export default function MapView({ mapType, points, heatmapView, globalSport }) {
         {showGlobal && (
           <div className="bg-orange-600/80 text-white text-xs px-3 py-1.5 rounded-full">
             Global: {globalSport}
+          </div>
+        )}
+        {showGlobal && globalHeatmapError && (
+          <div className="max-w-[22rem] bg-red-900/90 text-white text-xs px-3 py-2 rounded-lg pointer-events-auto">
+            Unable to load Strava global heatmap tiles. Sign into strava.com in this browser, allow third-party cookies,
+            then refresh this page.
           </div>
         )}
         {showPersonal && heatPoints.length > 0 && (
