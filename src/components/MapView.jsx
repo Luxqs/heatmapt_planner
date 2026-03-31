@@ -55,10 +55,12 @@ export default function MapView({ mapType, points, heatmapView, globalSport }) {
   const showGlobal = heatmapView !== 'personal';
 
   // leaflet.heat expects [lat, lng, intensity]
-  const heatPoints = useMemo(
-    () => points.map(([lat, lng]) => [lat, lng, 0.6]),
-    [points]
-  );
+  const heatPoints = useMemo(() => {
+    if (!Array.isArray(points)) return [];
+    return points
+      .filter(p => Array.isArray(p) && p.length >= 2 && Number.isFinite(p[0]) && Number.isFinite(p[1]))
+      .map(([lat, lng]) => [lat, lng, 0.6]);
+  }, [points]);
 
   const sport = GLOBAL_SPORTS[globalSport] || 'all';
   const globalTileCandidates = [
@@ -67,6 +69,16 @@ export default function MapView({ mapType, points, heatmapView, globalSport }) {
   ];
   const globalTileUrl = globalTileCandidates[tileVariantIdx] || globalTileCandidates[0];
 
+  const globalTileOptions = {
+    subdomains: ['a', 'b', 'c'],
+    maxZoom: 16,
+    opacity: 0.8,
+    attribution: 'Global heatmap &copy; <a href="https://www.strava.com">Strava</a>',
+    tileSize: 256,
+    crossOrigin: 'anonymous',
+    detectRetina: true,
+    noWrap: false,
+  };
   useEffect(() => {
     setTileVariantIdx(0);
     setGlobalHeatmapError(false);
@@ -90,10 +102,7 @@ export default function MapView({ mapType, points, heatmapView, globalSport }) {
           <TileLayer
             key={`global-${sport}-${tileVariantIdx}`}
             url={globalTileUrl}
-            subdomains={['a', 'b', 'c']}
-            attribution='Global heatmap &copy; <a href="https://www.strava.com">Strava</a>'
-            maxZoom={16}
-            opacity={0.8}
+            {...globalTileOptions}
             eventHandlers={{
               tileerror: () => {
                 setTileVariantIdx((prev) => {

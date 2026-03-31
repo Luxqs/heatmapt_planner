@@ -19,6 +19,11 @@ export default function HeatmapLayer({ points, options = {} }) {
 
     if (!points || points.length === 0) return;
 
+    if (!L.heatLayer) {
+      console.error('leaflet.heat plugin is missing; L.heatLayer not available.');
+      return;
+    }
+
     layerRef.current = L.heatLayer(points, {
       radius: 12,
       blur: 18,

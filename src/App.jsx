@@ -18,7 +18,7 @@ export default function App() {
   const [source, setSource] = useState('strava');
   const [mapType, setMapType] = useState('dark');
   const [activityType, setActivityType] = useState('All');
-  const [heatmapView, setHeatmapView] = useState('personal');
+  const [heatmapView, setHeatmapView] = useState('global');
   const [globalSport, setGlobalSport] = useState('all');
 
   const [stravaAuth, setStravaAuth] = useState(null);
@@ -100,6 +100,7 @@ export default function App() {
       setError('Failed to fetch activities: ' + err.message);
     } finally {
       setLoading(false);
+      setLoadingProgress(100);
     }
   }, []);
 
