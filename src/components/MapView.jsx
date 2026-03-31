@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useRef, useState } from 'react';
+import { useEffect, useMemo, useState } from 'react';
 import { MapContainer, TileLayer } from 'react-leaflet';
 import HeatmapLayer from './HeatmapLayer';
 
@@ -50,7 +50,6 @@ export default function MapView({ mapType, points, heatmapView, globalSport }) {
   const tile = TILE_LAYERS[mapType] || TILE_LAYERS.dark;
   const [globalHeatmapError, setGlobalHeatmapError] = useState(false);
   const [tileVariantIdx, setTileVariantIdx] = useState(0);
-  const switchedVariantRef = useRef(false);
 
   const showPersonal = heatmapView !== 'global';
   const showGlobal = heatmapView !== 'personal';
@@ -71,7 +70,6 @@ export default function MapView({ mapType, points, heatmapView, globalSport }) {
   useEffect(() => {
     setTileVariantIdx(0);
     setGlobalHeatmapError(false);
-    switchedVariantRef.current = false;
   }, [sport, heatmapView]);
 
   return (
@@ -97,17 +95,15 @@ export default function MapView({ mapType, points, heatmapView, globalSport }) {
             maxZoom={16}
             opacity={0.8}
             eventHandlers={{
-              loading: () => {
-                setGlobalHeatmapError(false);
-                switchedVariantRef.current = false;
-              },
               tileerror: () => {
-                if (!switchedVariantRef.current && tileVariantIdx < globalTileCandidates.length - 1) {
-                  switchedVariantRef.current = true;
-                  setTileVariantIdx(tileVariantIdx + 1);
-                  return;
-                }
-                setGlobalHeatmapError(true);
+                setTileVariantIdx((prev) => {
+                  if (prev < globalTileCandidates.length - 1) {
+                    setGlobalHeatmapError(false);
+                    return prev + 1;
+                  }
+                  setGlobalHeatmapError(true);
+                  return prev;
+                });
               },
             }}
           />
