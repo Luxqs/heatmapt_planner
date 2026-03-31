@@ -1,25 +1,43 @@
 # FTP deployment guide
 
-This project can be prepared for FTP upload with:
+Do not open `dist/index.html` directly from disk (`file://...`) — Vite bundles are meant to run from HTTP(S) hosting.
+
+## Build for FTP
+
+### If your app is hosted at domain root (e.g. `https://example.com/`)
 
 ```bash
 npm run build:ftp
 ```
 
+### If your app is hosted in a subfolder (e.g. `https://melichar.sk/heat_map/`)
+
+Windows CMD:
+
+```cmd
+set FTP_BASE_PATH=/heat_map/ && npm run build:ftp
+```
+
+PowerShell:
+
+```powershell
+$env:FTP_BASE_PATH='/heat_map/'; npm run build:ftp
+```
+
 That command:
-1. builds the app into `dist/`
+1. runs `vite build --base <FTP_BASE_PATH>`
 2. copies `deploy/.htaccess` into `dist/.htaccess` (SPA routing support)
 
 ## Upload steps
 
-1. Run `npm run build:ftp` locally.
-2. Open your FTP client (e.g. FileZilla / WinSCP).
-3. Connect to your hosting FTP server.
-4. Go to your web root (often `public_html` or `www`).
-5. Upload **all files and folders from `dist/`** into web root.
-6. Ensure `.htaccess` is uploaded too (show hidden files in FTP client).
+1. Open your FTP client (FileZilla / WinSCP).
+2. Connect to your hosting FTP server.
+3. Go to your target web folder (for this case: `heat_map`).
+4. Upload **all files and folders from `dist/`** into that folder.
+5. Ensure `.htaccess` is uploaded too (show hidden files in FTP client).
 
-## Important notes
+## Quick verification
 
-- If your app is hosted in a subfolder (e.g. `https://example.com/heatmap/`), set Vite `base` in `vite.config.js` accordingly.
-- After upload, hard-refresh browser (`Ctrl+F5`) to clear cached JS/CSS.
+- Visit exactly: `https://melichar.sk/heat_map/`
+- Hard refresh (`Ctrl+F5`).
+- Open browser DevTools → Network and confirm JS/CSS files load from `/heat_map/assets/...` (not from `/assets/...`).

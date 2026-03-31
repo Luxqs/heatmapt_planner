@@ -14,8 +14,17 @@ function run(cmd, args) {
   });
 }
 
+function normalizeBase(input = '/') {
+  const trimmed = input.trim();
+  if (!trimmed || trimmed === '/') return '/';
+  const withLeading = trimmed.startsWith('/') ? trimmed : `/${trimmed}`;
+  return withLeading.endsWith('/') ? withLeading : `${withLeading}/`;
+}
+
 async function main() {
-  await run('npm', ['run', 'build']);
+  const basePath = normalizeBase(process.env.FTP_BASE_PATH || '/');
+
+  await run('npx', ['vite', 'build', '--base', basePath]);
 
   const distDir = path.resolve('dist');
   const htaccessSrc = path.resolve('deploy/.htaccess');
@@ -24,8 +33,8 @@ async function main() {
   await access(distDir, constants.F_OK);
   await copyFile(htaccessSrc, htaccessDest);
 
-  console.log('\nFTP deploy bundle is ready in ./dist');
-  console.log('Upload all files from dist/ to your web root via FTP.');
+  console.log(`\nFTP deploy bundle is ready in ./dist (base path: ${basePath})`);
+  console.log('Upload all files from dist/ to your target web folder via FTP.');
 }
 
 main().catch((err) => {
