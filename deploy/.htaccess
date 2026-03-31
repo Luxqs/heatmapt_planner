@@ -1,0 +1,17 @@
+# SPA fallback for React/Vite app (Apache)
+<IfModule mod_rewrite.c>
+  RewriteEngine On
+
+  # Keep existing files/directories untouched
+  RewriteCond %{REQUEST_FILENAME} -f [OR]
+  RewriteCond %{REQUEST_FILENAME} -d
+  RewriteRule ^ - [L]
+
+  # Route all other requests to index.html within this folder
+  RewriteRule . index.html [L]
+</IfModule>
+
+# Prevent MIME sniffing
+<IfModule mod_headers.c>
+  Header set X-Content-Type-Options "nosniff"
+</IfModule>

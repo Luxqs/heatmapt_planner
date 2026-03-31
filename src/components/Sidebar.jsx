@@ -2,6 +2,7 @@ import { useRef } from 'react';
 import { getAuthUrl } from '../utils/stravaApi';
 import { readGpxFiles } from '../utils/gpxParser';
 import { TILE_LAYERS } from './MapView';
+import { GLOBAL_SPORTS } from '../constants/heatmap';
 
 const ACTIVITY_TYPES = [
   { id: 'All', label: 'All' },
@@ -23,13 +24,6 @@ const STRAVA_ICON = (
   </svg>
 );
 
-const GLOBAL_SPORTS = [
-  { id: 'all',    label: 'All Sports' },
-  { id: 'run',    label: 'Run' },
-  { id: 'ride',   label: 'Ride' },
-  { id: 'water',  label: 'Water' },
-  { id: 'winter', label: 'Winter' },
-];
 
 const HEATMAP_VIEWS = [
   { id: 'personal', label: 'Personal' },

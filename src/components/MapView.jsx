@@ -1,6 +1,7 @@
 import { useEffect, useMemo, useState } from 'react';
 import { MapContainer, TileLayer } from 'react-leaflet';
 import HeatmapLayer from './HeatmapLayer';
+import { GLOBAL_SPORT_BY_ID } from '../constants/heatmap';
 
 export const TILE_LAYERS = {
   dark: {
@@ -38,13 +39,6 @@ export const TILE_LAYERS = {
   },
 };
 
-const GLOBAL_SPORTS = {
-  all:    'all',
-  run:    'run',
-  ride:   'ride',
-  water:  'water',
-  winter: 'winter',
-};
 
 export default function MapView({ mapType, points, heatmapView, globalSport }) {
   const tile = TILE_LAYERS[mapType] || TILE_LAYERS.dark;
@@ -62,20 +56,22 @@ export default function MapView({ mapType, points, heatmapView, globalSport }) {
       .map(([lat, lng]) => [lat, lng, 0.6]);
   }, [points]);
 
-  const sport = GLOBAL_SPORTS[globalSport] || 'all';
+  const sport = GLOBAL_SPORT_BY_ID[globalSport]?.id || 'all';
+  const sportLabel = GLOBAL_SPORT_BY_ID[sport]?.label || 'All Sports';
   const globalTileCandidates = [
     `https://heatmap-external-{s}.strava.com/tiles-auth/${sport}/hot/{z}/{x}/{y}.png?px=256`,
     `https://heatmap-external-{s}.strava.com/tiles/${sport}/hot/{z}/{x}/{y}.png?px=256`,
   ];
   const globalTileUrl = globalTileCandidates[tileVariantIdx] || globalTileCandidates[0];
 
+  // Do not set crossOrigin=anonymous here: Strava's tiles-auth endpoint needs
+  // browser cookies when user is signed in to strava.com.
   const globalTileOptions = {
     subdomains: ['a', 'b', 'c'],
     maxZoom: 16,
     opacity: 0.8,
     attribution: 'Global heatmap &copy; <a href="https://www.strava.com">Strava</a>',
     tileSize: 256,
-    crossOrigin: 'anonymous',
     detectRetina: true,
     noWrap: false,
   };
@@ -124,7 +120,7 @@ export default function MapView({ mapType, points, heatmapView, globalSport }) {
       <div className="absolute bottom-8 right-4 z-[1000] flex flex-col items-end gap-1.5 pointer-events-none">
         {showGlobal && (
           <div className="bg-orange-600/80 text-white text-xs px-3 py-1.5 rounded-full">
-            Global: {globalSport}
+            Global: {sportLabel}
           </div>
         )}
         {showGlobal && globalHeatmapError && (
