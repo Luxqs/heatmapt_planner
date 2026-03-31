@@ -122,8 +122,8 @@ export default function Sidebar({
               ))}
             </div>
             <p className="text-xs text-gray-600 leading-snug">
-              Worldwide Strava data. If it does not load, open strava.com/heatmap in this browser tab first, then
-              return and refresh.
+              Worldwide Strava data. If it fails, sign into strava.com, allow third-party cookies, open
+              strava.com/heatmap once, then return and refresh.
             </p>
           </div>
         )}

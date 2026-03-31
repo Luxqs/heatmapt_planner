@@ -124,7 +124,8 @@ export default function MapView({ mapType, points, heatmapView, globalSport }) {
         )}
         {showGlobal && globalHeatmapError && (
           <div className="max-w-[22rem] bg-red-900/90 text-white text-xs px-3 py-2 rounded-lg pointer-events-auto">
-            Unable to load Strava global heatmap tiles. Open strava.com/heatmap in this browser first, then refresh.
+            Unable to load Strava global heatmap tiles. Sign into strava.com, allow third-party cookies, open
+            strava.com/heatmap once, then refresh this page.
           </div>
         )}
         {showPersonal && heatPoints.length > 0 && (
