@@ -122,8 +122,8 @@ export default function Sidebar({
               ))}
             </div>
             <p className="text-xs text-gray-600 leading-snug">
-              Worldwide Strava data. You must be signed into strava.com in this browser and allow third-party cookies
-              for heatmap tiles to load.
+              Worldwide Strava data. If it fails, sign into strava.com, allow third-party cookies, open
+              strava.com/heatmap once, then return and refresh.
             </p>
           </div>
         )}

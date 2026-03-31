@@ -1,4 +1,4 @@
-import { useMemo, useState } from 'react';
+import { useEffect, useMemo, useRef, useState } from 'react';
 import { MapContainer, TileLayer } from 'react-leaflet';
 import HeatmapLayer from './HeatmapLayer';
 
@@ -49,6 +49,8 @@ const GLOBAL_SPORTS = {
 export default function MapView({ mapType, points, heatmapView, globalSport }) {
   const tile = TILE_LAYERS[mapType] || TILE_LAYERS.dark;
   const [globalHeatmapError, setGlobalHeatmapError] = useState(false);
+  const [tileVariantIdx, setTileVariantIdx] = useState(0);
+  const switchedVariantRef = useRef(false);
 
   const showPersonal = heatmapView !== 'global';
   const showGlobal = heatmapView !== 'personal';
@@ -60,7 +62,17 @@ export default function MapView({ mapType, points, heatmapView, globalSport }) {
   );
 
   const sport = GLOBAL_SPORTS[globalSport] || 'all';
-  const globalTileUrl = `https://heatmap-external-{s}.strava.com/tiles-auth/${sport}/hot/{z}/{x}/{y}.png?px=256`;
+  const globalTileCandidates = [
+    `https://heatmap-external-{s}.strava.com/tiles-auth/${sport}/hot/{z}/{x}/{y}.png?px=256`,
+    `https://heatmap-external-{s}.strava.com/tiles/${sport}/hot/{z}/{x}/{y}.png?px=256`,
+  ];
+  const globalTileUrl = globalTileCandidates[tileVariantIdx] || globalTileCandidates[0];
+
+  useEffect(() => {
+    setTileVariantIdx(0);
+    setGlobalHeatmapError(false);
+    switchedVariantRef.current = false;
+  }, [sport, heatmapView]);
 
   return (
     <div className="flex-1 h-full relative">
@@ -78,16 +90,25 @@ export default function MapView({ mapType, points, heatmapView, globalSport }) {
         />
         {showGlobal && (
           <TileLayer
-            key={`global-${sport}`}
+            key={`global-${sport}-${tileVariantIdx}`}
             url={globalTileUrl}
             subdomains={['a', 'b', 'c']}
             attribution='Global heatmap &copy; <a href="https://www.strava.com">Strava</a>'
             maxZoom={16}
             opacity={0.8}
-            crossOrigin="use-credentials"
             eventHandlers={{
-              loading: () => setGlobalHeatmapError(false),
-              tileerror: () => setGlobalHeatmapError(true),
+              loading: () => {
+                setGlobalHeatmapError(false);
+                switchedVariantRef.current = false;
+              },
+              tileerror: () => {
+                if (!switchedVariantRef.current && tileVariantIdx < globalTileCandidates.length - 1) {
+                  switchedVariantRef.current = true;
+                  setTileVariantIdx(tileVariantIdx + 1);
+                  return;
+                }
+                setGlobalHeatmapError(true);
+              },
             }}
           />
         )}
@@ -103,8 +124,8 @@ export default function MapView({ mapType, points, heatmapView, globalSport }) {
         )}
         {showGlobal && globalHeatmapError && (
           <div className="max-w-[22rem] bg-red-900/90 text-white text-xs px-3 py-2 rounded-lg pointer-events-auto">
-            Unable to load Strava global heatmap tiles. Sign into strava.com in this browser, allow third-party cookies,
-            then refresh this page.
+            Unable to load Strava global heatmap tiles. Sign into strava.com, allow third-party cookies, open
+            strava.com/heatmap once, then refresh this page.
           </div>
         )}
         {showPersonal && heatPoints.length > 0 && (
