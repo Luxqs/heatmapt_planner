@@ -122,7 +122,8 @@ export default function Sidebar({
               ))}
             </div>
             <p className="text-xs text-gray-600 leading-snug">
-              Worldwide Strava data. Requires being logged into Strava in this browser.
+              Worldwide Strava data. You must be signed into strava.com in this browser and allow third-party cookies
+              for heatmap tiles to load.
             </p>
           </div>
         )}
