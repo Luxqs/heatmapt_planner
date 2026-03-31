@@ -64,13 +64,14 @@ export default function MapView({ mapType, points, heatmapView, globalSport }) {
   ];
   const globalTileUrl = globalTileCandidates[tileVariantIdx] || globalTileCandidates[0];
 
+  // Do not set crossOrigin=anonymous here: Strava's tiles-auth endpoint needs
+  // browser cookies when user is signed in to strava.com.
   const globalTileOptions = {
     subdomains: ['a', 'b', 'c'],
     maxZoom: 16,
     opacity: 0.8,
     attribution: 'Global heatmap &copy; <a href="https://www.strava.com">Strava</a>',
     tileSize: 256,
-    crossOrigin: 'anonymous',
     detectRetina: true,
     noWrap: false,
   };
