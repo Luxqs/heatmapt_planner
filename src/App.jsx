@@ -114,11 +114,10 @@ export default function App() {
     const pool = source === 'strava' ? stravaActivities : garminActivities;
     return pool
       .filter(a => {
+        const type = a.type || a.activityType;
         if (activityType === 'All') return true;
-        if (activityType === 'Other') return !KNOWN_TYPES.includes(a.type) && a.activityType !== 'Other'
-          ? false
-          : a.activityType === 'Other' || !KNOWN_TYPES.includes(a.type || a.activityType);
-        return (a.type || a.activityType) === activityType;
+        if (activityType === 'Other') return !KNOWN_TYPES.includes(type);
+        return type === activityType;
       })
       .flatMap(a => a.points);
   }, [source, activityType, stravaActivities, garminActivities]);
